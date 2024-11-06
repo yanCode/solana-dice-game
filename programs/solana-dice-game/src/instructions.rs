@@ -5,7 +5,7 @@ use anchor_lang::{
     },
 };
 
-use crate::{errors::CoinflipError, CreateCoinflip};
+use crate::{errors::CoinflipError, CoinFlipState, CreateCoinflip, JoinCoinflip, PlayCoinflip, ResultCoinflip};
 
 pub fn create_coinflip_handler(
     ctx: Context<CreateCoinflip>,
@@ -31,5 +31,32 @@ pub fn create_coinflip_handler(
     )?;
     coinflip.user_1 = ctx.accounts.user.key();
     coinflip.amount = amount;
+    Ok(())
+}
+
+pub fn join_coinflip_handler(ctx: Context<JoinCoinflip>, room_id: String) -> Result<()> {
+    let coinflip = &mut ctx.accounts.coinflip;
+    invoke(
+        &transfer(
+            ctx.accounts.user.key,
+            coinflip.to_account_info().key,
+            coinflip.amount,
+        ),
+        &[
+            ctx.accounts.user.to_account_info(),
+            coinflip.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
+        ],
+    )?;
+    coinflip.user_2 = ctx.accounts.user.key();
+    coinflip.amount *= 2;
+    coinflip.state = CoinFlipState::Processing;
+    Ok(())
+}
+pub fn play_coinflip_handler(ctx: Context<PlayCoinflip>, room_id: String) -> Result<()> {
+    Ok(())
+}
+
+pub fn result_coinflip_handler(ctx: Context<ResultCoinflip>, room_id: String) -> Result<()> {
     Ok(())
 }
