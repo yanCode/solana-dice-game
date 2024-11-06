@@ -129,5 +129,6 @@ pub struct CoinFlip {
 pub enum CoinFlipState {
     WaitingForPlayer,
     Processing,
+    WaitingForResult,
     Finished,
 }

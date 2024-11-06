@@ -6,4 +6,8 @@ pub enum CoinflipError {
     InvalidAmount,
     #[msg("Coinflip already has 2 players")]
     CoinflipAlreadyHasTwoPlayers,
+    #[msg("User is not a player in this coinflip")]
+    NotPlayer,
+    #[msg("Coinflip is not in processing state")]
+    CoinflipNotProcessing,
 }
