@@ -1,8 +1,11 @@
 mod instructions;
 mod pda;
+pub mod constants;
+mod errors;
 use anchor_lang::prelude::*;
 use instructions::*;
 use pda::*;
+
 declare_id!("8TdE8ycHXpH1FBUpUTpZK5gCCppZ1yGyesvKv5JFvSXG");
 
 #[program]
