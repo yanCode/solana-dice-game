@@ -77,6 +77,22 @@ describe("solana-dice-game", () => {
     assert.equal(coinflipAccount.user2.equals(user_2.publicKey), true);
     assert.deepEqual(coinflipAccount.state, { processing: {} });
   });
+  it("should fail if user tries to join coinflip twice", async () => {
+    try {
+      const tx = await program.methods.joinCoinflip(room_id)
+      .accounts({
+        coinflip,
+        user: user_2.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+        .signers([user_2])
+        .rpc();
+      assert.fail("Expected transaction to fail");
+    } catch (err) {
+      assert.equal(err.error.errorMessage, "Coinflip already has 2 players");
+      assert.equal(err.error.errorCode.code, "CoinflipAlreadyHasTwoPlayers");
+    }
+  })
 
 });
 

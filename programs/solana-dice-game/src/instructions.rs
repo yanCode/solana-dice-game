@@ -48,6 +48,9 @@ pub fn join_coinflip_handler(ctx: Context<JoinCoinflip>, room_id: String) -> Res
             ctx.accounts.system_program.to_account_info(),
         ],
     )?;
+    if coinflip.user_2 != Pubkey::default() {
+        return err!(CoinflipError::CoinflipAlreadyHasTwoPlayers);
+    }
     coinflip.user_2 = ctx.accounts.user.key();
     coinflip.amount *= 2;
     coinflip.state = CoinFlipState::Processing;
