@@ -4,6 +4,7 @@ import { SolanaDiceGame } from "../target/types/solana_dice_game";
 import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Keypair } from "@solana/web3.js";
 import { assert } from "chai";
 import { randomnessAccountAddress, Orao, networkStateAccountAddress } from "@orao-network/solana-vrf";
+import { OraoVrfHelper } from "./orao_vrf_utils.local";
 
 describe("solana-dice-game", () => {
   const room_id = "some_random_room_id";
@@ -12,6 +13,7 @@ describe("solana-dice-game", () => {
   const user_2 = Keypair.generate();
   const force = Keypair.generate().publicKey;
   const provider = anchor.AnchorProvider.env();
+
   anchor.setProvider(provider);
   const connection = provider.connection;
   const program = anchor.workspace.SolanaDiceGame as Program<SolanaDiceGame>;
@@ -19,10 +21,10 @@ describe("solana-dice-game", () => {
     [Buffer.from("coinflip"), Buffer.from(room_id)],
     program.programId
   );
-  const vrf = new Orao(anchor.getProvider());
+  const vrfHelper = new OraoVrfHelper(provider);
   before(async () => {
     // Airdrop SOL to user_2 for testing
-    console.table(process.env);
+
     const signature = await connection.requestAirdrop(
       user_2.publicKey,
       10 * LAMPORTS_PER_SOL
@@ -30,9 +32,14 @@ describe("solana-dice-game", () => {
     await connection.confirmTransaction(signature);
     const balance = await connection.getBalance(user_2.publicKey);
     console.log(" after airdrop, user_2 has balance:", balance / LAMPORTS_PER_SOL);
+    
   })
   // await waitTransaction(connection, signature);
-
+  it.only("should init vrf successfully", async () => {
+    console.log("vrfHelper.getTreasury", vrfHelper.getTreasury.publicKey.toBase58());
+    await vrfHelper.init();
+    console.log("vrfHelper.getTreasury", vrfHelper);
+  })
   it("should fail if amount is less than 0.05 SOL", async () => {
     try {
       await program.methods.createCoinflip(room_id, new BN(0.01 * LAMPORTS_PER_SOL))
@@ -100,14 +107,14 @@ describe("solana-dice-game", () => {
   })
   it("should play coinflip successfully", async () => {
     const random_pda = randomnessAccountAddress(force.toBuffer());
-    const treasury = new PublicKey("9ZTHWWZDpB36UFe1vszf2KEpt83vwi27jDqtHQ7NSXyR");
+    // const treasury = new PublicKey("9ZTHWWZDpB36UFe1vszf2KEpt83vwi27jDqtHQ7NSXyR");
     const tx = await program.methods.playCoinflip(room_id, [...force.toBuffer()])
       .accounts({
         coinflip,
         user: payer.publicKey,
         random: random_pda,
-        vrf: vrf.programId,
-        treasury,
+        vrf: vrfHelper.getVrf.programId,
+        treasury: vrfHelper.getTreasury.publicKey,
         config: networkStateAccountAddress(),
         systemProgram: SystemProgram.programId,
       }).rpc();
