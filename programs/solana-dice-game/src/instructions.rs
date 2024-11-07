@@ -7,8 +7,8 @@ use anchor_lang::{
 use orao_solana_vrf::cpi::accounts::Request;
 
 use crate::{
-    errors::CoinflipError, CoinFlipState, CreateCoinflip, JoinCoinflip, PlayCoinflip,
-    ResultCoinflip,
+    current_state, errors::CoinflipError, get_account_data, CoinFlipState, CreateCoinflip,
+    JoinCoinflip, PlayCoinflip, ResultCoinflip,
 };
 
 pub fn create_coinflip_handler(
@@ -90,7 +90,11 @@ pub fn play_coinflip_handler(
 
 pub fn result_coinflip_handler(ctx: Context<ResultCoinflip>, room_id: String) -> Result<()> {
     let coinflip = &mut ctx.accounts.coinflip;
-    let result = 0;
+    let randomness_data = get_account_data(&ctx.accounts.random)?;
+    let randomness =
+        current_state(&randomness_data).ok_or(CoinflipError::CoinflipResultNotReady)?;
+
+    let result = randomness % 2;
     if result == 0 {
         coinflip.winner = coinflip.user_1;
 

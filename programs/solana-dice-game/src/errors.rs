@@ -10,4 +10,6 @@ pub enum CoinflipError {
     NotPlayer,
     #[msg("Coinflip is not in processing state")]
     CoinflipNotProcessing,
+    #[msg("Coinflip result is not ready")]
+    CoinflipResultNotReady,
 }
