@@ -3,12 +3,14 @@ import { BN, Program } from "@coral-xyz/anchor";
 import { SolanaDiceGame } from "../target/types/solana_dice_game";
 import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Keypair } from "@solana/web3.js";
 import { assert } from "chai";
+import { randomnessAccountAddress, Orao, networkStateAccountAddress } from "@orao-network/solana-vrf";
 
 describe("solana-dice-game", () => {
   const room_id = "some_random_room_id";
   const amount = 100;
   const payer = anchor.Wallet.local().payer
   const user_2 = Keypair.generate();
+  const force = Keypair.generate().publicKey;
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
   const connection = provider.connection;
@@ -17,8 +19,10 @@ describe("solana-dice-game", () => {
     [Buffer.from("coinflip"), Buffer.from(room_id)],
     program.programId
   );
+  const vrf = new Orao(anchor.getProvider());
   before(async () => {
     // Airdrop SOL to user_2 for testing
+    console.table(process.env);
     const signature = await connection.requestAirdrop(
       user_2.publicKey,
       10 * LAMPORTS_PER_SOL
@@ -77,14 +81,15 @@ describe("solana-dice-game", () => {
     assert.equal(coinflipAccount.user2.equals(user_2.publicKey), true);
     assert.deepEqual(coinflipAccount.state, { processing: {} });
   });
+
   it("should fail if user tries to join coinflip twice", async () => {
     try {
       const tx = await program.methods.joinCoinflip(room_id)
-      .accounts({
-        coinflip,
-        user: user_2.publicKey,
-        systemProgram: SystemProgram.programId,
-      })
+        .accounts({
+          coinflip,
+          user: user_2.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
         .signers([user_2])
         .rpc();
       assert.fail("Expected transaction to fail");
@@ -93,7 +98,23 @@ describe("solana-dice-game", () => {
       assert.equal(err.error.errorCode.code, "CoinflipAlreadyHasTwoPlayers");
     }
   })
-
+  it("should play coinflip successfully", async () => {
+    const random_pda = randomnessAccountAddress(force.toBuffer());
+    const treasury = new PublicKey("9ZTHWWZDpB36UFe1vszf2KEpt83vwi27jDqtHQ7NSXyR");
+    const tx = await program.methods.playCoinflip(room_id, [...force.toBuffer()])
+      .accounts({
+        coinflip,
+        user: payer.publicKey,
+        random: random_pda,
+        vrf: vrf.programId,
+        treasury,
+        config: networkStateAccountAddress(),
+        systemProgram: SystemProgram.programId,
+      }).rpc();
+    const coinflipAccount = await program.account.coinflip.fetch(coinflip);
+    console.log("After playing, coinflip account has state:", coinflipAccount.state);
+    assert.deepEqual(coinflipAccount.state, { waitingForResult: {} });
+  });
 });
 
 
