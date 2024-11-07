@@ -13,8 +13,7 @@ use crate::{
 
 pub fn create_coinflip_handler(
     ctx: Context<CreateCoinflip>,
-    room_id: String,
-    amount: u64,
+    amount: u64
 ) -> Result<()> {
     if amount < LAMPORTS_PER_SOL / 100 * 5 {
         return err!(CoinflipError::InvalidAmount);
@@ -38,7 +37,7 @@ pub fn create_coinflip_handler(
     Ok(())
 }
 
-pub fn join_coinflip_handler(ctx: Context<JoinCoinflip>, room_id: String) -> Result<()> {
+pub fn join_coinflip_handler(ctx: Context<JoinCoinflip>) -> Result<()> {
     let coinflip = &mut ctx.accounts.coinflip;
     invoke(
         &transfer(
@@ -88,7 +87,7 @@ pub fn play_coinflip_handler(
     Ok(())
 }
 
-pub fn result_coinflip_handler(ctx: Context<ResultCoinflip>, room_id: String) -> Result<()> {
+pub fn result_coinflip_handler(ctx: Context<ResultCoinflip>) -> Result<()> {
     let coinflip = &mut ctx.accounts.coinflip;
     let randomness_data = get_account_data(&ctx.accounts.random)?;
     let randomness =

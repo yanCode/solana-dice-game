@@ -15,14 +15,14 @@ pub mod solana_dice_game {
 
     pub fn create_coinflip(
         ctx: Context<CreateCoinflip>,
-        room_id: String,
+        _room_id: String,
         amount: u64,
     ) -> Result<()> {
-        create_coinflip_handler(ctx, room_id, amount)
+        create_coinflip_handler(ctx, amount)
     }
 
-    pub fn join_coinflip(ctx: Context<JoinCoinflip>, room_id: String) -> Result<()> {
-        join_coinflip_handler(ctx, room_id)
+    pub fn join_coinflip(ctx: Context<JoinCoinflip>, _room_id: String) -> Result<()> {
+        join_coinflip_handler(ctx)
     }
 
     pub fn play_coinflip(
@@ -33,7 +33,7 @@ pub mod solana_dice_game {
         play_coinflip_handler(ctx, room_id, force)
     }
 
-    pub fn result_coinflip(ctx: Context<ResultCoinflip>, room_id: String) -> Result<()> {
-        result_coinflip_handler(ctx, room_id)
+    pub fn result_coinflip(ctx: Context<ResultCoinflip>, _room_id: String) -> Result<()> {
+        result_coinflip_handler(ctx)
     }
 }
