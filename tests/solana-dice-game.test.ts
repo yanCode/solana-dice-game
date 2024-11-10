@@ -13,6 +13,7 @@ describe("solana-dice-game", async () => {
   const user_2 = Keypair.generate();
   const force = Keypair.generate().publicKey;
   const provider = anchor.AnchorProvider.env();
+  const random_pda = randomnessAccountAddress(force.toBuffer());
 
   anchor.setProvider(provider);
   const connection = provider.connection;
@@ -99,7 +100,7 @@ describe("solana-dice-game", async () => {
     }
   })
   it("should play coinflip successfully", async () => {
-    const random_pda = randomnessAccountAddress(force.toBuffer());
+    
     // const treasury = new PublicKey("9ZTHWWZDpB36UFe1vszf2KEpt83vwi27jDqtHQ7NSXyR");
     const tx = await program.methods.playCoinflip(room_id, [...force.toBuffer()])
       .accounts({
@@ -111,10 +112,33 @@ describe("solana-dice-game", async () => {
         config: networkStateAccountAddress(),
         systemProgram: SystemProgram.programId,
       }).rpc();
-    const coinflipAccount = await program.account.coinflip.fetch(coinflip);
+    const coinflipAccount = await program.account.coinFlip.fetch(coinflip);
     console.log("After playing, coinflip account has state:", coinflipAccount.state);
     assert.deepEqual(coinflipAccount.state, { waitingForResult: {} });
   });
+  it("Randomness fulfilled", async () => {
+    console.log("Waiting for randomness to be fulfilled, it might take a while...")
+    let randomnessFulfilled = await vrfHelper.getVrf.waitFulfilled(force.toBuffer())
+    console.log("Randomness is fulfilled, we can call the result function")
+    console.log("Randomness fulfilled:", randomnessFulfilled)
+  })
+  it('should process result successfully', async () => {
+    const tx = await program.methods.resultCoinflip(room_id, [...force.toBuffer()])
+      .accounts({
+        user1: payer.publicKey,
+        user2: user_2.publicKey,
+        coinflip,
+        treasury: vrfHelper.getTreasury.publicKey,
+        random: random_pda,
+        vrf: vrfHelper.getVrf.programId,
+        config: networkStateAccountAddress(),
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
+    const coinflipAccount = await program.account.coinFlip.fetch(coinflip);
+    console.log("After processing result, coinflip account has state:", coinflipAccount.state);
+    assert.deepEqual(coinflipAccount.state, { finished: {} });
+  })
 });
 
 
