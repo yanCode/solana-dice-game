@@ -10,11 +10,17 @@ export class OraoVrfHelper {
   private readonly fulfillmentAuthority: Keypair;
   private readonly configAuthority: Keypair;
 
-  constructor(provider: AnchorProvider) {
+  private constructor(provider: AnchorProvider) {
     this.vrf = new Orao(provider);
     this.treasury = Keypair.generate();
     this.configAuthority = Keypair.generate();
     this.fulfillmentAuthority = Keypair.generate();
+  }
+
+  static async create(provider: AnchorProvider): Promise<OraoVrfHelper> {
+    const vrfHelper = new OraoVrfHelper(provider);
+    await vrfHelper.init();
+    return vrfHelper;
   }
 
   get getVrf(): Orao {
@@ -28,17 +34,16 @@ export class OraoVrfHelper {
   async init(): Promise<void> {
     const fee = 2 * LAMPORTS_PER_SOL;
     const fulfillmentAuthorities = [this.fulfillmentAuthority.publicKey];
-    console.log("================================================")
-    console.log("treasury", this.vrf.programId);
-    console.log("configAuthority", this.configAuthority.publicKey.toBase58());
-    await new InitBuilder(
+    const tx = await new InitBuilder(
       this.vrf,
       this.configAuthority.publicKey,
       this.treasury.publicKey,
       fulfillmentAuthorities,
       new BN(fee)
     ).rpc();
+    console.log("Your transaction signature of InitBuilder:", tx);
   }
+  
   async mockFulfillment(seed: Buffer): Promise<void> {
     let signature = nacl.sign.detached(seed, this.fulfillmentAuthority.secretKey);
     await new FulfillBuilder(this.vrf, seed).rpc(

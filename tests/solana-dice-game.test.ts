@@ -3,10 +3,10 @@ import { BN, Program } from "@coral-xyz/anchor";
 import { SolanaDiceGame } from "../target/types/solana_dice_game";
 import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Keypair } from "@solana/web3.js";
 import { assert } from "chai";
-import { randomnessAccountAddress, Orao, networkStateAccountAddress } from "@orao-network/solana-vrf";
+import { randomnessAccountAddress, Orao, networkStateAccountAddress, InitBuilder } from "@orao-network/solana-vrf";
 import { OraoVrfHelper } from "./orao_vrf_utils.local";
 
-describe("solana-dice-game", () => {
+describe("solana-dice-game", async () => {
   const room_id = "some_random_room_id";
   const amount = 100;
   const payer = anchor.Wallet.local().payer
@@ -21,10 +21,10 @@ describe("solana-dice-game", () => {
     [Buffer.from("coinflip"), Buffer.from(room_id)],
     program.programId
   );
-  const vrfHelper = new OraoVrfHelper(provider);
+  let vrfHelper: OraoVrfHelper;
   before(async () => {
+    vrfHelper = await OraoVrfHelper.create(provider);
     // Airdrop SOL to user_2 for testing
-
     const signature = await connection.requestAirdrop(
       user_2.publicKey,
       10 * LAMPORTS_PER_SOL
@@ -32,13 +32,6 @@ describe("solana-dice-game", () => {
     await connection.confirmTransaction(signature);
     const balance = await connection.getBalance(user_2.publicKey);
     console.log(" after airdrop, user_2 has balance:", balance / LAMPORTS_PER_SOL);
-    
-  })
-  // await waitTransaction(connection, signature);
-  it.only("should init vrf successfully", async () => {
-    console.log("vrfHelper.getTreasury", vrfHelper.getTreasury.publicKey.toBase58());
-    await vrfHelper.init();
-    console.log("vrfHelper.getTreasury", vrfHelper);
   })
   it("should fail if amount is less than 0.05 SOL", async () => {
     try {

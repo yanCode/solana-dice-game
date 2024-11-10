@@ -7,7 +7,7 @@ use anchor_lang::prelude::*;
 use instructions::*;
 use pda::*;
 use utils::*;
-declare_id!("8TdE8ycHXpH1FBUpUTpZK5gCCppZ1yGyesvKv5JFvSXG");
+declare_id!("GKF1S9Cz549GV5peutKqYXbTBFeoqdBqeLgTDz6CgowR");
 
 #[program]
 pub mod solana_dice_game {

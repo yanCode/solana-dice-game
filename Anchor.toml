@@ -22,7 +22,6 @@ startup_wait = 5000
 shutdown_wait = 2000
 upgradeable = false
 
-# Orao VRF localnet deployment
-[[tests.genesis]]
+[[test.genesis]]
 address = "VRFzZoJdhFWL8rkvu87LpKM3RbcVezpMEc6X5GVDr7y"
-program = "lib/orao_vrf.so"
+program = "tests/lib/orao_vrf.so"
