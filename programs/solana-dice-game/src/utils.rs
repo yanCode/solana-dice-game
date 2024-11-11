@@ -8,7 +8,7 @@ pub fn get_account_data(account_info: &AccountInfo) -> Result<Randomness> {
         return Err(ProgramError::UninitializedAccount.into());
     }
 
-    let account = Randomness::try_from_slice(&account_info.data.borrow()[..])?;
+    let account = Randomness::try_deserialize(&mut &account_info.data.borrow_mut()[..])?;
 
     Ok(account)
 }

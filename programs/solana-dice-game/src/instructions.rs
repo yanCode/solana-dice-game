@@ -11,10 +11,7 @@ use crate::{
     JoinCoinflip, PlayCoinflip, ResultCoinflip,
 };
 
-pub fn create_coinflip_handler(
-    ctx: Context<CreateCoinflip>,
-    amount: u64
-) -> Result<()> {
+pub fn create_coinflip_handler(ctx: Context<CreateCoinflip>, amount: u64) -> Result<()> {
     if amount < LAMPORTS_PER_SOL / 100 * 5 {
         return err!(CoinflipError::InvalidAmount);
     }
@@ -101,7 +98,7 @@ pub fn result_coinflip_handler(ctx: Context<ResultCoinflip>) -> Result<()> {
             .accounts
             .user_1
             .lamports()
-            .checked_add(coinflip.amount * 2)
+            .checked_add(coinflip.amount)
             .unwrap();
     } else {
         coinflip.winner = coinflip.user_2;
@@ -109,10 +106,10 @@ pub fn result_coinflip_handler(ctx: Context<ResultCoinflip>) -> Result<()> {
             .accounts
             .user_2
             .lamports()
-            .checked_add(coinflip.amount * 2)
+            .checked_add(coinflip.amount)
             .unwrap();
     }
-    **coinflip.to_account_info().lamports.borrow_mut() -= coinflip.amount * 2;
+    **coinflip.to_account_info().lamports.borrow_mut() -= coinflip.amount;
     coinflip.state = CoinFlipState::Finished;
     Ok(())
 }

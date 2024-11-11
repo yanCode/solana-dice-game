@@ -33,7 +33,11 @@ pub mod solana_dice_game {
         play_coinflip_handler(ctx, room_id, force)
     }
 
-    pub fn result_coinflip(ctx: Context<ResultCoinflip>, _room_id: String) -> Result<()> {
+    pub fn result_coinflip(
+        ctx: Context<ResultCoinflip>,
+        _room_id: String,
+        _force: [u8; 32],
+    ) -> Result<()> {
         result_coinflip_handler(ctx)
     }
 }

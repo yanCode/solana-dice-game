@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-solana_dice_game = "8TdE8ycHXpH1FBUpUTpZK5gCCppZ1yGyesvKv5JFvSXG"
+solana_dice_game = "GKF1S9Cz549GV5peutKqYXbTBFeoqdBqeLgTDz6CgowR"
 
 [registry]
 url = "https://api.apr.dev"

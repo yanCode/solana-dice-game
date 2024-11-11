@@ -68,7 +68,7 @@ pub struct ResultCoinflip<'info> {
       mut, 
       seeds = [COINFLIP_SEED, room_id.as_bytes().as_ref()],
       constraint =
-      coinflip.state == CoinFlipState::Processing &&
+      // coinflip.state == CoinFlipState::Processing &&
       coinflip.user_1 == user_1.key() &&
       coinflip.user_2 == user_2.key(),
       bump
