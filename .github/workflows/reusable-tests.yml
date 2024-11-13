@@ -82,6 +82,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup/
-      # - uses: ./.github/actions/setup-ts/
-      # - uses: ./.github/actions/setup-solana/
+      - uses: ./.github/actions/setup-ts/
+      - uses: ./.github/actions/setup-solana/
       - run: echo "${{ matrix.node.cmd }}"
