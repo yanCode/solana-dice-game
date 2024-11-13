@@ -37,18 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
+      - run: rustc --version
+    
+      # - uses: actions/checkout@v3
       - uses: ./.github/actions/setup/
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/cache@v3
-        if: ${{ env.CACHE != 'false' }}
-        name: Cache Cargo registry + index
-        id: cache-cargo-build
-        with:
-          path: ${{ env.CARGO_CACHE_PATH }}
-          key: cargo-${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}    
+    
       # - run: cargo build
       # - run: cargo fmt -- --check
       # - run: cargo clippy --all-targets -- -D warnings
