@@ -12,3 +12,5 @@ runs:
         components: rustfmt, clippy
     - run: rustc --version
       shell: bash
+    - run: echo "rust all setup"
+      shell: bash

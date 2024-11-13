@@ -1,0 +1,8 @@
+name: Localnet Tests
+on:
+  workflow_call
+
+jobs:
+  setup_env:
+    uses: ./.github/actions/setup-all
+    
