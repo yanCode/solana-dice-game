@@ -40,11 +40,11 @@ jobs:
       - run: rustc --version
     
       # - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup/
+      # - uses: ./.github/actions/setup/
     
       # - run: cargo build
       # - run: cargo fmt -- --check
       # - run: cargo clippy --all-targets -- -D warnings
       # - run: cargo test  
-      - run: rustc --version
+      - run: rustup --version
     
