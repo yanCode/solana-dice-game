@@ -1,14 +1,57 @@
 name: Localnet Tests
 on:
-  workflow_call
+  workflow_call:
+    inputs:
+      cache:
+        type: boolean
+        required: true
+      solana_cli_version:
+        type: string
+        required: true
+      node_version:
+        type: string
+        required: true
+      cargo_profile:
+        type: string
+        required: true
+      anchor_binary_name:
+        type: string
+        required: true
+
+env:
+  CACHE: inputs.cache
+  SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
+  NODE_VERSION: ${{ inputs.node_version }}
+  CARGO_PROFILE: ${{ inputs.cargo_profile }}
+  ANCHOR_BINARY_NAME: ${{ inputs.anchor_binary_name }}
+  CARGO_CACHE_PATH: |
+    ~/.cargo/bin/
+    ~/.cargo/registry/index/
+    ~/.cargo/registry/cache/
+    ~/.cargo/git/db/
+    ./target/
 
 jobs:
-  setup_env:
-    # uses: ./.github/actions/setup-all
-    name: Setup Environment
+  tests:
+    name: Test-core
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - run: echo "Setup complete workflow_call"
-        shell: bash
-
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup/
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v3
+        if: ${{ env.CACHE != 'false' }}
+        name: Cache Cargo registry + index
+        id: cache-cargo-build
+        with:
+          path: ${{ env.CARGO_CACHE_PATH }}
+          key: cargo-${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}    
+      # - run: cargo build
+      # - run: cargo fmt -- --check
+      # - run: cargo clippy --all-targets -- -D warnings
+      # - run: cargo test  
+      - run: rustc --version
     
