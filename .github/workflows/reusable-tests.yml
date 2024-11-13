@@ -77,11 +77,36 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - cmd: cd tests/sysvars && anchor test --skip-lint
+          - cmd: anchor test --skip-lint
             path: tests/sysvars
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup/
       - uses: ./.github/actions/setup-ts/
       - uses: ./.github/actions/setup-solana/
-      - run: echo "${{ matrix.node.cmd }}"
+      
+      - uses: actions/cache@v3
+        if: ${{ env.CACHE != 'false' }}
+        name: Cache Cargo registry + index
+        id: cache-anchor
+        with:
+          path: ${{ env.CARGO_CACHE_PATH }}
+          key: cargo-${{ runner.os }}-${{ env.CARGO_PROFILE }}-anchor-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ANCHOR_BINARY_NAME }}
+          path: ~/.cargo/bin/
+      - run: chmod +x ~/.cargo/bin/anchor       
+
+      - uses: actions/cache@v3
+        if: ${{ env.CACHE != 'false' }}
+        name: Cache ${{ matrix.node.path }} target
+        id: cache-test-target
+        with:
+          path: ${{ matrix.node.path }}/target
+          key: cargo-${{ runner.os }}-${{ matrix.node.path }}-${{ env.ANCHOR_VERSION }}-${{ env.SOLANA_CLI_VERSION }}-${{ hashFiles('**/Cargo.lock') }}
+      
+      - run: ${{ matrix.node.cmd }}
+        name: Test ${{ matrix.node.path }} program test
+
+      - uses: ./.github/actions/git-diff/   
