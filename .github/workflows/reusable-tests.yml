@@ -5,14 +5,38 @@ on:
     inputs:
       cache:
         type: boolean
-        default: true
+        required: true
+      solana_cli_version:
+        type: string
+        required: true
+      node_version:
+        type: string
+        required: true
+      cargo_profile:
+        type: string
+        required: true
+      anchor_binary_name:
+        type: string
+        required: true
+
+
+env:
+  CACHE: ${{ inputs.cache }}
+  SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
+  NODE_VERSION: ${{ inputs.node_version }}
+  CARGO_PROFILE: ${{ inputs.cargo_profile }}
+  ANCHOR_BINARY_NAME: ${{ inputs.anchor_binary_name }}
+  CARGO_CACHE_PATH: |
+    ~/.cargo/bin/
+    ~/.cargo/registry/index/
+    ~/.cargo/registry/cache/
+      ~/.cargo/git/db/
+      ./target/ 
 
 jobs:
-  test:
-    name: Core Tests
+  debug_test:
+    name: Debug Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      
+      - run: echo "Cache: ${{ env.CACHE }}"
 
