@@ -1,0 +1,18 @@
+name: Reusable Tests
+
+on:
+  workflow_call:
+    inputs:
+      cache:
+        type: boolean
+        default: true
+
+jobs:
+  test:
+    name: Core Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      
+
