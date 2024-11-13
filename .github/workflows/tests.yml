@@ -9,6 +9,6 @@ jobs:
     name: Setup Environment
     runs-on: ubuntu-latest
     steps:
-      - uses: /.github/actions/setup/
-      - uses: /.github/actions/setup-all/
+      - uses: ../.github/actions/setup/
+      - uses: ../.github/actions/setup-all/
  
