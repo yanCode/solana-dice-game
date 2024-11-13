@@ -21,7 +21,7 @@ on:
 
 
 env:
-  CACHE: inputs.cache
+  CACHE: ${{ inputs.cache }}
   SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
   NODE_VERSION: ${{ inputs.node_version }}
   CARGO_PROFILE: ${{ inputs.cargo_profile }}
@@ -46,43 +46,42 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      # - uses: actions/checkout@v3
-      # - uses: ./.github/actions/setup/
-      # - uses: actions/cache@v3
-      - run: echo "$env.CACHE"
-      - run: echo "${{ env.CACHE }}"
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup/
+      - uses: actions/cache@v3
         if: ${{ env.CACHE != 'false' }}
-        # name: Cache Cargo registry + index
-        # id: cache-anchor
-        # with:
-        #   path: ${/{ env.CARGO_CACHE_PATH }}
-        #   key: cargo-${/{ runner.os }}-${/{ env.CARGO_PROFILE }}-anchor-${/{ hashFiles('**/Cargo.lock') }}
-      # - run: cargo install --path cli anchor-cli --locked --force --debug
-      - run: echo "is debug $env.CARGO_PROFILE"
-      - run: echo "${{ env.CARGO_PROFILE }}"
+        name: Cache Cargo registry + index
+        id: cache-anchor
+        with:
+          path: ${{ env.CARGO_CACHE_PATH }}
+          key: cargo-${{ runner.os }}-${{ env.CARGO_PROFILE }}-anchor-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo install --path cli anchor-cli --locked --force --debug
         if: env.CARGO_PROFILE == 'debug'
-      # - run: cargo install --path cli anchor-cli --locked --force
-      - run: echo "is not debug $env.CARGO_PROFILE"
-      - run: echo "${{ env.CARGO_PROFILE }}"
+      - run: cargo install --path cli anchor-cli --locked --force
         if: env.CARGO_PROFILE != 'debug'
-      # - run: chmod +x ~/.cargo/bin/anchor    
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${/{ env.ANCHOR_BINARY_NAME }}
-      #     path: ~/.cargo/bin/anchor
+      - run: chmod +x ~/.cargo/bin/anchor    
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ANCHOR_BINARY_NAME }}
+          path: ~/.cargo/bin/anchor
 
-      # - uses: ./.github/actions/git-diff/
+      - uses: ./.github/actions/git-diff/
        
 
-  # test-programs:
-  #   needs: setup-anchor-cli
-  #   name: Test ${//{matrix.node.path}}
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       node:
-  #         - cmd: cd tests/sysvars && anchor test --skip-lint
-  #           path: tests/sysvars
-    
+  test-programs:
+    needs: setup-anchor-cli
+    name: Test ${{matrix.node.path}}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - cmd: cd tests/sysvars && anchor test --skip-lint
+            path: tests/sysvars
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup/
+      # - uses: ./.github/actions/setup-ts/
+      # - uses: ./.github/actions/setup-solana/
+      - run: echo "${{ matrix.node.cmd }}"
