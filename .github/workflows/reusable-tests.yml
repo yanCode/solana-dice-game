@@ -40,3 +40,49 @@ jobs:
     steps:
       - run: echo "${{ env.CACHE }}" 
       - run: echo "Next step"
+  
+  setup-anchor-cli:
+    name: Setup Anchor CLI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # - uses: actions/checkout@v3
+      # - uses: ./.github/actions/setup/
+      # - uses: actions/cache@v3
+      - run: echo "$env.CACHE"
+      - run: echo "${{ env.CACHE }}"
+        if: ${{ env.CACHE != 'false' }}
+        # name: Cache Cargo registry + index
+        # id: cache-anchor
+        # with:
+        #   path: ${/{ env.CARGO_CACHE_PATH }}
+        #   key: cargo-${/{ runner.os }}-${/{ env.CARGO_PROFILE }}-anchor-${/{ hashFiles('**/Cargo.lock') }}
+      # - run: cargo install --path cli anchor-cli --locked --force --debug
+      - run: echo "is debug $env.CARGO_PROFILE"
+      - run: echo "${{ env.CARGO_PROFILE }}"
+        if: env.CARGO_PROFILE == 'debug'
+      # - run: cargo install --path cli anchor-cli --locked --force
+      - run: echo "is not debug $env.CARGO_PROFILE"
+      - run: echo "${{ env.CARGO_PROFILE }}"
+        if: env.CARGO_PROFILE != 'debug'
+      # - run: chmod +x ~/.cargo/bin/anchor    
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${/{ env.ANCHOR_BINARY_NAME }}
+      #     path: ~/.cargo/bin/anchor
+
+      # - uses: ./.github/actions/git-diff/
+       
+
+  # test-programs:
+  #   needs: setup-anchor-cli
+  #   name: Test ${//{matrix.node.path}}
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       node:
+  #         - cmd: cd tests/sysvars && anchor test --skip-lint
+  #           path: tests/sysvars
+    
