@@ -5,7 +5,9 @@ on:
     branches:
       - devops/actions  
 jobs:
-  tests:
-    name: Reusable Tests
-    uses: ./.github/actions/setup-all/action.yaml
+  setup_env:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-all
  
