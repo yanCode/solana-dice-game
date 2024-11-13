@@ -9,7 +9,9 @@ jobs:
     name: Setup Environment
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/localnet-tests.yml
       - run: echo "Setup complete"
+        shell: bash
+      - uses: ../.github/workflows/localnet-tests.yml
+      
      
  
