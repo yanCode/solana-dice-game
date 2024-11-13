@@ -21,7 +21,7 @@ on:
 
 
 env:
-  CACHE: ${{ inputs.cache }}
+  CACHE: inputs.cache
   SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
   NODE_VERSION: ${{ inputs.node_version }}
   CARGO_PROFILE: ${{ inputs.cargo_profile }}
@@ -30,13 +30,13 @@ env:
     ~/.cargo/bin/
     ~/.cargo/registry/index/
     ~/.cargo/registry/cache/
-      ~/.cargo/git/db/
-      ./target/ 
+    ~/.cargo/git/db/
+    ./target/ 
 
 jobs:
   debug_test:
     name: Debug Tests
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Cache: ${{ env.CACHE }}"
-
+      - run: echo "${{ env.CACHE }}" 
+      - run: echo "Next step"
