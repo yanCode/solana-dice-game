@@ -5,13 +5,10 @@ on:
     branches:
       - devops/actions  
 jobs:
-  setup_env:
-    name: Setup Environment
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Setup complete"
-        shell: bash
-      - uses: ./.github/workflows/localnet-tests.yaml
+  tests:
+    name: Localnet Tests
+    uses: ./.github/workflows/localnet-tests.yml
+      
       
      
  

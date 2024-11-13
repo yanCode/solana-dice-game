@@ -4,5 +4,11 @@ on:
 
 jobs:
   setup_env:
-    uses: ./.github/actions/setup-all
+    # uses: ./.github/actions/setup-all
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Setup complete workflow_call"
+        shell: bash
+
     
