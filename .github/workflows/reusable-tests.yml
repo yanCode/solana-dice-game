@@ -21,7 +21,7 @@ on:
 
 
 env:
-  CACHE: inputs.cache
+  CACHE: ${{ inputs.cache }}
   SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
   NODE_VERSION: ${{ inputs.node_version }}
   CARGO_PROFILE: ${{ inputs.cargo_profile }}
