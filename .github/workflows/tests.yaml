@@ -6,7 +6,7 @@ on:
       - devops/actions  
 jobs:
   tests:
-    name: Localnet Tests
+    name: Localnet Testss
     uses: ./.github/workflows/localnet-tests.yaml
       
       
