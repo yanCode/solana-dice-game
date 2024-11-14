@@ -5,6 +5,7 @@ runs:
   steps:
     - run: echo "before cache action, cache hit"
       if: steps.cache-solana.outputs.cache-hit != 'true'
+      shell: bash
     - uses: actions/cache@v3
       name: Cache Solana Tool Suite
       id: cache-solana
