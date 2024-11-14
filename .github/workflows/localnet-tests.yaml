@@ -63,6 +63,7 @@ jobs:
       # - run: node --version
       # - run: anchor --version
       # - run: solana --version
+      - run: rustup default stable
       - run: solana-keygen new --no-bip39-passphrase
         shell: bash
       - run: solana config set --url localhost
