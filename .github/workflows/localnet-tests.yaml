@@ -17,10 +17,14 @@ on:
       anchor_binary_name:
         type: string
         required: true
+      solana_version:
+        type: string
+        required: true
 
 env:
   CACHE: inputs.cache
   SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
+  SOLANA_VERSION: ${{ inputs.solana_version }}
   NODE_VERSION: ${{ inputs.node_version }}
   CARGO_PROFILE: ${{ inputs.cargo_profile }}
   ANCHOR_BINARY_NAME: ${{ inputs.anchor_binary_name }}
@@ -33,14 +37,24 @@ env:
 
 jobs:
   tests:
-    name: Test-core
+    name: Test-env set up
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - run: rustc --version
     
-      # - uses: actions/checkout@v3
-      # - uses: ./.github/actions/setup/
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup/
+      - run: 'echo "solana version: ${{ env.SOLANA_VERSION }}'
+      - run: 'echo "node version before:"'
+      - run: node --version
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: 'echo "node version after:"'
+      - run: node --version
+      # - uses: ./.github/actions/setup-solana/
+      # - uses: ./.github/actions/setup-node/
     
       # - run: cargo build
       # - run: cargo fmt -- --check
