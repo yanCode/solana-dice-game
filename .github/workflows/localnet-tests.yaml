@@ -59,10 +59,19 @@ jobs:
       # - uses: actions/setup-node@v3
         # with:
         #   node-version: ${ { env.NODE_VERSION }}
-      - run: 'echo "node version after:"'
-      - run: node --version
-      - run: anchor --version
-      - run: solana --version
+      # - run: 'echo "node version after:"'
+      # - run: node --version
+      # - run: anchor --version
+      # - run: solana --version
+      - run: solana-keygen new --no-bip39-passphrase
+        shell: bash
+      - run: solana config set --url localhost
+        shell: bash
+      - run: yarn
+        shell: bash
+      - run: anchor test
+        shell: bash
+    
       # - uses: ./.github/actions/setup-solana/
       # - uses: ./.github/actions/setup-node/
     
