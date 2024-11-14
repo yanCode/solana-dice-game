@@ -17,17 +17,18 @@ on:
       anchor_binary_name:
         type: string
         required: true
-      solana_version:
+      anchor_version:
         type: string
         required: true
+    
 
 env:
   CACHE: inputs.cache
   SOLANA_CLI_VERSION: ${{ inputs.solana_cli_version }}
-  SOLANA_VERSION: ${{ inputs.solana_version }}
   NODE_VERSION: ${{ inputs.node_version }}
   CARGO_PROFILE: ${{ inputs.cargo_profile }}
   ANCHOR_BINARY_NAME: ${{ inputs.anchor_binary_name }}
+  ANCHOR_VERSION: ${{ inputs.anchor_version }}  
   CARGO_CACHE_PATH: |
     ~/.cargo/bin/
     ~/.cargo/registry/index/
@@ -37,7 +38,7 @@ env:
 
 jobs:
   tests:
-    name: Test-env set up
+    name: Test-env set u
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -45,7 +46,7 @@ jobs:
     
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup/
-      - run: 'echo "solana version: ${{ env.SOLANA_VERSION }}'
+      - run: 'echo "anchor version: ${{ env.ANCHOR_VERSION }}'
       - run: 'echo "node version before:"'
       - run: node --version
       - uses: actions/setup-node@v3
