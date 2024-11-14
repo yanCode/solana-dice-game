@@ -15,10 +15,13 @@ runs:
         key: solana-${{ runner.os }}-v0000-${{ env.SOLANA_CLI_VERSION }}-${{ env.SOLANG_VERSION }}
     - run: echo "after cache action, cache hit"
       if: steps.cache-solana.outputs.cache-hit != 'true'
+      shell: bash
     - run: echo "before retry action, cache hit"
       if: steps.cache-solana.outputs.cache-hit != 'true'   
+      shell: bash
     - uses: nick-fields/retry@v2
       if: steps.cache-solana.outputs.cache-hit != 'true'
+      shell: bash
       with:
         retry_wait_seconds: 300
         timeout_minutes: 2
@@ -28,6 +31,7 @@ runs:
         command: sh -c "$(curl -sSfL https://release.anza.xyz/v${{ env.SOLANA_CLI_VERSION }}/install)"
     - run: echo "after retry action, cache hit"
       if: steps.cache-solana.outputs.cache-hit != 'true'
+      shell: bash
     - run: echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
       shell: bash
     - run: solana-keygen new --no-bip39-passphrase
