@@ -68,7 +68,9 @@ jobs:
       # - run: cargo clippy --all-targets -- -D warnings
       # - run: cargo test  
       - run: rustup --version
-      - run: cargo install --path cli anchor-cli --locked --force
-      - run: chmod +x ~/.cargo/bin/anchor
+      - run: 'cargo install --git https://github.com/coral-xyz/anchor avm --locked --force'
+      - run: chmod +x ~/.cargo/bin/avm
+      - run: avm install ${{ env.ANCHOR_VERSION }}
+      - run: avm use ${{ env.ANCHOR_VERSION }}
       - run: anchor --version
     
