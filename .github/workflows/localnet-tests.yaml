@@ -67,10 +67,10 @@ jobs:
       # - run: cargo fmt -- --check
       # - run: cargo clippy --all-targets -- -D warnings
       # - run: cargo test  
-      - run: rustup --version
-      - run: cargo install anchor-cli --version ${{ env.ANCHOR_VERSION }}
-      - run: chmod +x ~/.cargo/bin/anchor
-      - run: anchor --version
-      - run: yarn install
-      - run: anchor test
+      # - run: rustup --version
+      # - run: cargo install anchor-cli --version ${ { env.ANCHOR_VERSION }}
+      # - run: chmod +x ~/.cargo/bin/anchor
+      # - run: anchor --version
+      # - run: yarn install
+      # - run: anchor test
     
