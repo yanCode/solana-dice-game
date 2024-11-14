@@ -68,4 +68,7 @@ jobs:
       # - run: cargo clippy --all-targets -- -D warnings
       # - run: cargo test  
       - run: rustup --version
+      - run: cargo install --path cli anchor-cli --locked --force
+      - run: chmod +x ~/.cargo/bin/anchor
+      - run: anchor --version
     
