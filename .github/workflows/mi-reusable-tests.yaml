@@ -43,8 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup/
-      - name: before anchor install check cache hit  
-        run: 'echo Cache hit: "${{ steps.cache-anchor.outputs.cache-hit }}"'
       - uses: actions/cache@v3
         if: ${{ env.CACHE != 'false' }}
         name: Cache Cargo registry + index
@@ -52,8 +50,35 @@ jobs:
         with:
           path: ${{ env.CARGO_CACHE_PATH }}
           key: cargo-${{ runner.os }}-${{ env.CARGO_PROFILE }}-anchor-${{ hashFiles('**/Cargo.lock') }}
-      - name: after anchor install check cache hit  
-        run: 'echo Cache hit: "${{ steps.cache-anchor.outputs.cache-hit }}"'
-      - name: "os name"
-        run : 'echo runner os: ${{ runner.os }}'  
+      - run: cargo install --path cli anchor-cli --locked --force --debug
+        if: env.CARGO_PROFILE == 'debug'
+      - run: cargo install --path cli anchor-cli --locked --force
+        if: env.CARGO_PROFILE != 'debug'
+      - run: chmod +x ~/.cargo/bin/anchor
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ANCHOR_BINARY_NAME }}
+          path: ~/.cargo/bin/anchor
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ANCHOR_BINARY_NAME }}
+          path: ~/.cargo/bin/
+      - run: chmod +rwx ~/.cargo/bin/anchor    
+      - run: 'echo "anchor version: $(anchor --version)"'
+      - uses: ./.github/actions/setup/
+      - uses: ./.github/actions/setup-solana/
+      - uses: actions/cache@v3
+        if: ${{ env.CACHE != 'false' }}
+        name: dice game cache
+        id: cache-dice-game
+        with:
+          path: ./target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}-${{ env.SOLANA_CLI_VERSION }}-${{ hashFiles('**/Cargo.lock') }}
+      - run: yarn install
+      - run: anchor test
 
