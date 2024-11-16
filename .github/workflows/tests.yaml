@@ -15,7 +15,7 @@ jobs:
       node_version: 20.16.0
       cargo_profile: debug
       anchor_binary_name: anchor-binary
-      solana_version: 0.30.1
+   
     
         
      

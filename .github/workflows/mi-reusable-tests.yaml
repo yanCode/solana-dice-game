@@ -54,4 +54,6 @@ jobs:
           key: cargo-${{ runner.os }}-${{ env.CARGO_PROFILE }}-anchor-${{ hashFiles('**/Cargo.lock') }}
       - name: after anchor install check cache hit  
         run: 'echo Cache hit: "${{ steps.cache-anchor.outputs.cache-hit }}"'
+      - name: "os name"
+        run : 'echo runner os: ${{ runner.os }}'  
 
