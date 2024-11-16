@@ -6,7 +6,7 @@ on:
       - devops/actions  
 jobs:
   tests:
-    name: Localnet Testss
+    name: Mi Reusable Tests
     uses: ./.github/workflows/mi-reusable-tests.yaml
     with:
       cache: true
