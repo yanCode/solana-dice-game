@@ -41,9 +41,9 @@ jobs:
       - uses: ./.github/actions/setup/
       - uses: actions/cache@v3
       # - name: before anchor install check cache hit  
-      - name: after anchor install check cache hit  
+      - name: before anchor install check cache hit  
         run: 'echo Cache hit: "${{ steps.cache-anchor.outputs.cache-hit }}"'
-        
+
         if: ${{ env.CACHE != 'false' }}
         name: Cache Cargo registry + index
         id: cache-anchor
