@@ -4,11 +4,10 @@ import { SolanaDiceGame } from "../target/types/solana_dice_game";
 import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Keypair } from "@solana/web3.js";
 import { assert } from "chai";
 import { randomnessAccountAddress, networkStateAccountAddress } from "@orao-network/solana-vrf";
-import { OraoVrfHelper } from "./orao_vrf_utils.local";
+import { OraoVrfTestHelper } from "./orao_vrf_utils.local";
 
 describe("solana-dice-game", async () => {
   const room_id = "some_random_room_id";
-  const amount = 100;
   const payer = anchor.Wallet.local().payer
   const user_2 = Keypair.generate();
   const force = Keypair.generate().publicKey;
@@ -22,18 +21,19 @@ describe("solana-dice-game", async () => {
     [Buffer.from("coinflip"), Buffer.from(room_id)],
     program.programId
   );
-  let vrfHelper: OraoVrfHelper;
+  let vrfTestHelper: OraoVrfTestHelper;
   before(async () => {
-    vrfHelper = await OraoVrfHelper.create(provider);
+    vrfTestHelper = await OraoVrfTestHelper.create(provider);
     // Airdrop SOL to user_2 for testing
     const signature = await connection.requestAirdrop(
       user_2.publicKey,
       10 * LAMPORTS_PER_SOL
     );
-    await connection.confirmTransaction(signature);
-    const balance = await connection.getBalance(user_2.publicKey);
-    console.log(" after airdrop, user_2 has balance:", balance / LAMPORTS_PER_SOL);
+    const latestBlockhash = await connection.getLatestBlockhash();
+    await connection.confirmTransaction({ signature, ...latestBlockhash });
+
   })
+
   it("should fail if amount is less than 0.05 SOL", async () => {
     try {
       await program.methods.createCoinflip(room_id, new BN(0.01 * LAMPORTS_PER_SOL))
@@ -52,23 +52,24 @@ describe("solana-dice-game", async () => {
   });
 
   it("should create coinflip successfully", async () => {
-    const tx = await program.methods.createCoinflip(room_id, new BN(2 * LAMPORTS_PER_SOL))
+    await program.methods.createCoinflip(room_id, new BN(2 * LAMPORTS_PER_SOL))
       .accounts({
         coinflip,
         user: payer.publicKey,
         systemProgram: SystemProgram.programId,
       })
       .rpc();
-    console.log("Your transaction signature", tx);
+
     const coinflipAccount = await program.account.coinFlip.fetch(coinflip);
-    console.log("After creating, coinflip account has amount:", coinflipAccount.amount.div(new BN(LAMPORTS_PER_SOL)).toNumber());
-    const balance = await program.provider.connection.getBalance(coinflip);
+    console.log("🏂 After creating, coinflip account has amount:", coinflipAccount.amount.div(new BN(LAMPORTS_PER_SOL)).toNumber());
+    const balance = await connection.getBalance(coinflip);
     assert.equal(coinflipAccount.amount.lt(new BN(balance)), true);
     assert.equal(coinflipAccount.amount.eq(new BN(2 * LAMPORTS_PER_SOL)), true);
 
   });
+
   it("should join coinflip successfully", async () => {
-    const tx = await program.methods.joinCoinflip(room_id)
+    await program.methods.joinCoinflip(room_id)
       .accounts({
         coinflip,
         user: user_2.publicKey,
@@ -77,7 +78,7 @@ describe("solana-dice-game", async () => {
       .signers([user_2])
       .rpc();
     const coinflipAccount = await program.account.coinFlip.fetch(coinflip);
-    console.log("After joining, coinflip account has amount:", coinflipAccount.amount.div(new BN(LAMPORTS_PER_SOL)).toNumber());
+    console.log("🤼 After joining, coinflip account has amount:", coinflipAccount.amount.div(new BN(LAMPORTS_PER_SOL)).toNumber());
     assert.equal(coinflipAccount.amount.eq(new BN(4 * LAMPORTS_PER_SOL)), true);
     assert.equal(coinflipAccount.user2.equals(user_2.publicKey), true);
     assert.deepEqual(coinflipAccount.state, { processing: {} });
@@ -101,27 +102,27 @@ describe("solana-dice-game", async () => {
   })
   it("should play coinflip successfully", async () => {
 
-    // const treasury = new PublicKey("9ZTHWWZDpB36UFe1vszf2KEpt83vwi27jDqtHQ7NSXyR");
     const tx = await program.methods.playCoinflip(room_id, [...force.toBuffer()])
       .accounts({
         coinflip,
         user: payer.publicKey,
         random: random_pda,
-        vrf: vrfHelper.getVrf.programId,
-        treasury: vrfHelper.getTreasury.publicKey,
+        vrf: OraoVrfTestHelper.VRF_PROGRAM_ID,
+        treasury: vrfTestHelper.treasuryAccount.publicKey,
         config: networkStateAccountAddress(),
         systemProgram: SystemProgram.programId,
       }).rpc();
     const coinflipAccount = await program.account.coinFlip.fetch(coinflip);
-    console.log("After playing, coinflip account has state:", coinflipAccount.state);
     assert.deepEqual(coinflipAccount.state, { waitingForResult: {} });
   });
+
   it("Randomness fulfilled", async () => {
-    console.log("Waiting for randomness to be fulfilled, it might take a while...")
-    await vrfHelper.mockFulfillment(force.toBuffer())
-    let randomnessFulfilled = await vrfHelper.getVrf.waitFulfilled(force.toBuffer())
-    console.log("Randomness is fulfilled, we can call the result function")
+    await vrfTestHelper.mockFulfillment(force.toBuffer())
+    console.log("🔄 Waiting for randomness to be fulfilled, it might take a while...")
+    await vrfTestHelper.waitFulfilled(force.toBuffer())
+    console.log("🎲 Randomness now is fulfilled, we can call the result function")
   })
+
   it('should process result successfully', async () => {
 
     await program.methods.resultCoinflip(room_id, [...force.toBuffer()])
@@ -129,17 +130,18 @@ describe("solana-dice-game", async () => {
         coinflip,
         user1: payer.publicKey,
         user2: user_2.publicKey,
-        treasury: vrfHelper.getTreasury.publicKey,
+        treasury: vrfTestHelper.treasuryAccount.publicKey,
         random: random_pda,
-        vrf: vrfHelper.getVrf.programId,
+        vrf: OraoVrfTestHelper.VRF_PROGRAM_ID,
         config: networkStateAccountAddress(),
         systemProgram: SystemProgram.programId,
       })
       .rpc();
 
     const coinflipAccount = await program.account.coinFlip.fetch(coinflip);
-    console.log("After processing result, coinflip account has state:", coinflipAccount.state);
-
+    assert.deepEqual(coinflipAccount.state, { finished: {} });
+    const coinflipInfo = await program.account.coinFlip.fetch(coinflip);
+    assert.oneOf(coinflipInfo.winner.toBase58(), [coinflipInfo.user1.toBase58(), coinflipInfo.user2.toBase58()]);
   })
 });
 
