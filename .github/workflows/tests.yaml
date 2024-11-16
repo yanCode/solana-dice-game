@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - devops/actions  
+      - devops/actions-stop  
 jobs:
   tests:
     name: Mi Reusable Tests
