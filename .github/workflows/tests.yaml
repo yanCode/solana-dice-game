@@ -7,7 +7,7 @@ on:
 jobs:
   tests:
     name: Localnet Testss
-    uses: ./.github/workflows/localnet-tests.yaml
+    uses: ./.github/workflows/mi-reusable-tests.yaml
     with:
       cache: true
       solana_cli_version: 2.1.0
