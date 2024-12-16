@@ -17,6 +17,5 @@ no-idl = []
 no-log-ix-name = []
 
 [dependencies]
-anchor-lang = "0.30.1"
 orao-solana-vrf = {git = "https://github.com/yanCode/solana-vrf.git", branch = "anchor-lang_0.30.1", features = ["cpi"], default-features = false}
-anchor-spl = "0.30.1"
+anchor-lang = "0.30.1"
